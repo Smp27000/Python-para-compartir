@@ -1,0 +1,55 @@
+{% load static %}
+{% include 'Inc/header.html' %}
+
+<div class="container">
+  <h1>Listado de Proveedores</h1>
+  <a href="/Proveedor/insertar">
+    <button type="submit" class="btn btn-success">registrar</button>
+  </a>
+  <br><br>
+  <table class="table table-hover">
+    <thead class="table-primary">
+      <tr>
+        <th scope="col">Nombre</th>
+        <th scope="col">Dirección</th>
+        <th scope="col">Nit</th>
+        <th scope="col">Correo</th>
+        <th scope="col">Observación</th>
+        <th scope="col">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in mostrar %}
+      <tr>
+        <th scope="row">{{ t.1 }}</th>
+        <td>{{ t.2 }}</td>
+        <td>{{ t.3 }}</td>
+        <td>{{ t.4 }}</td>
+        <td>{{ t.5 }}</td>
+        <td>
+          <a href="/Proveedor/editar/{{ t.0 }}">
+            <button type="submit" class="btn btn-success">Editar</button>
+          </a>
+          <button class="btn btn-danger" onclick="borrar('{{t.0}}')">Eliminar</button>
+          <form action="/Proveedor/eliminar" method="POST" id="formu{{t.0}}">
+            {% csrf_token %}
+            <input type="hidden" name="idprover" id="idprover" value="{{t.0}}">
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <script>
+    function borrar(id) {
+      confirmar = confirm(" ¿Esta seguro que quiere borrar el registro? ")
+      if (confirmar) {
+        document.getElementById('formu' + id).submit();
+      }
+    }
+  </script>
+
+</div>
+
+{% include 'Inc/footer.html' %}

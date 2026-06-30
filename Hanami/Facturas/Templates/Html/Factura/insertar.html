@@ -1,0 +1,117 @@
+{% load static %}
+{% include 'Inc/header.html' %}
+
+<div class="container">
+    <h1 class="text-center my-4">Crear Factura</h1>
+    <div class="card p-4 col-md-8 mx-auto">
+        <form action="" method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input type="date" class="form-control" id="fecha" placeholder="Fecha"
+                               name="fecha" required>
+                        <label for="fecha">Fecha:</label>
+                        <div class="invalid-feedback">La fecha es obligatoria.</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="cliente" name="cliente" required>
+                            <option value="" disabled selected>Seleccione Cliente</option>
+                            {% for c in clientes %}
+                                <option value="{{ c.idcliente }}">{{ c.nombre }} {{ c.apellido }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="cliente">Cliente:</label>
+                        <div class="invalid-feedback">Debe seleccionar un cliente.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="producto" name="producto" required onchange="actualizarPrecio()">
+                            <option value="" disabled selected>Seleccione Producto</option>
+                            {% for p in productos %}
+                                <option value="{{ p.id }}" data-precio="{{ p.precio }}">{{ p.nombre }} - ${{ p.precio }} (Stock: {{ p.cantidad }})</option>
+                            {% endfor %}
+                        </select>
+                        <label for="producto">Producto:</label>
+                        <div class="invalid-feedback">Debe seleccionar un producto.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-floating mb-3">
+                        <input type="number" step="any" class="form-control" id="cantidad" placeholder="Cantidad"
+                               name="cantidad" required oninput="calcularTotal()">
+                        <label for="cantidad">Cantidad:</label>
+                        <div class="invalid-feedback">La cantidad es obligatoria.</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-floating mb-3">
+                        <input type="number" step="any" class="form-control" id="precio" placeholder="Precio"
+                               name="precio" required oninput="calcularTotal()">
+                        <label for="precio">Precio Unitario:</label>
+                        <div class="invalid-feedback">El precio es obligatorio.</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-floating mb-3">
+                        <input type="number" class="form-control bg-light" id="total" placeholder="Total"
+                               name="total" readonly>
+                        <label for="total">Total:</label>
+                    </div>
+                </div>
+            </div>
+
+            {% if mensa %}
+                <h5 class="text-danger text-center my-3">{{ mensa }}</h5>
+            {% endif %}
+
+            <div class="col-12 text-center mt-3">
+                <button type="submit" class="btn btn-primary px-5 py-2">Registrar Factura</button>
+                <a href="/Factura/mostrar" class="btn btn-secondary px-5 py-2 ms-2">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function actualizarPrecio() {
+    var select = document.getElementById('producto');
+    var option = select.options[select.selectedIndex];
+    var precio = option.getAttribute('data-precio');
+    if (precio) {
+        document.getElementById('precio').value = precio;
+        calcularTotal();
+    }
+}
+
+function calcularTotal() {
+    var cantidad = parseFloat(document.getElementById('cantidad').value) || 0;
+    var precio = parseFloat(document.getElementById('precio').value) || 0;
+    document.getElementById('total').value = (cantidad * precio).toFixed(2);
+}
+
+(() => {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
+
+{% include 'Inc/footer.html' %}

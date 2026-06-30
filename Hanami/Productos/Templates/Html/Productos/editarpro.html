@@ -1,0 +1,67 @@
+{% load static %}
+{% include 'Inc/header.html' %}
+<div class="container">
+    <h1 class="text-center my-4">Formulario Editar Productos</h1>
+    <div class="card p-4 col-md-8 mx-auto">
+        <form action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row align-items-center">
+                {% for produc in producs %}
+                <div class="col-6">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="nombre" placeholder="Nombre"
+                               name="nombre" value="{{produc.nombre}}" required>
+                        <label for="nombre">Nombre:</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" class="form-control" id="precio" placeholder="Precio"
+                               name="precio" value="{{produc.precio|floatformat:0}}" required>
+                        <label for="precio">Precio:</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="date" class="form-control" id="fecha" placeholder="Fecha"
+                               name="fecha" value="{{produc.fecha}}" required>
+                        <label for="fecha">Fecha:</label>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-floating mb-3 d-flex align-items-center gap-2">
+                        {% if produc.foto %}
+                            <img src="{% static 'Img/' %}{{produc.foto}}" width="50" height="50" class="rounded">
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <input type="file" class="form-control" id="foto" name="foto">
+                            <input type="hidden" name="fotoan" value="{{produc.foto}}">
+                            <label for="foto" class="d-none">Foto:</label>
+                        </div>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" class="form-control" id="cantidad" placeholder="Cantidad"
+                               name="cantidad" value="{{produc.cantidad|floatformat:0}}" required>
+                        <label for="cantidad">Cantidad:</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="prover" name="prover" required>
+                            {% for d in prover %}
+                                <option value="{{d.id}}" {% if d.id == produc.proveedor.id %} selected {% endif %}>{{ d.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="prover">Proveedores:</label>
+                    </div>
+                </div>
+                <div class="col-12 mt-3">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="descri" placeholder="Descripción"
+                               name="descri" value="{{produc.descripcion}}" required>
+                        <label for="descri">Descripción:</label>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="col-12 text-center mt-3">
+                <button type="submit" class="btn btn-primary px-5 py-2">Registrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% include 'Inc/footer.html' %}

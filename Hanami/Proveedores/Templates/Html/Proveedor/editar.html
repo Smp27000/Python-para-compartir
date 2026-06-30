@@ -1,0 +1,67 @@
+{% load static %}
+{% include 'Inc/header.html' %}
+
+<div class="container">
+  <h1>Formulario Actualizar Proveedores</h1>
+  <div class="container text-center">
+    <form action="" method="post">
+      {% csrf_token %}
+      {% for t in prover %}
+      <div class="row align-items-center">
+
+        <div class="col-6">
+          <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="floatingInput"
+              placeholder="name@example.com"
+              name="nombre" value="{{ t.1 }}" required>
+            <label for="floatingInput">Nombre:</label>
+          </div>
+          <div class="form-floating">
+            <input type="text" class="form-control" id="floatingPassword"
+              placeholder="Dirección"
+              name="direccion" value="{{t.2}}" required>
+            <label for="floatingPassword">Dirección:</label>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="floatingInput"
+              placeholder="Nit"
+              name="nit" value="{{t.3}}">
+            <label for="floatingInput">Nit:</label>
+          </div>
+          <div class="form-floating">
+            <input type="Email" class="form-control" id="floatingPassword"
+              placeholder="name@example.com"
+              name="email" value="{{t.4}}">
+            <label for="floatingPassword">Email:</label>
+          </div>
+        </div>
+
+      </div>
+
+      <br>
+      <div class="col-12">
+        <div class="form-floating">
+          <input type="text" class="form-control" id="floatingInput"
+            placeholder="Nit"
+            name="observaciones" value="{{t.5}}">
+          <label for="floatingInput">Observaciones:</label>
+        </div>
+      </div>
+
+      <br>
+      <div class="col-12">
+        <div class="form-floating mb-3 ">
+          <button type="submit" class="btn btn-primary">Actualizar</button>
+        </div>
+      </div>
+
+      </div>
+      {% endfor %}
+    </form>
+  </div>
+</div>
+
+{% include 'Inc/footer.html' %}

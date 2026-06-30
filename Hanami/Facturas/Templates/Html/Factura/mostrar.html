@@ -1,0 +1,87 @@
+{% load static %}
+{% include 'Inc/header.html' %}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center my-4">
+        <h1>Listado de Facturas</h1>
+        <a href="/Factura/insertar" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Nueva Factura</a>
+    </div>
+
+    <div class="card p-3">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Total</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in mostrar %}
+                    <tr>
+                        <td>{{ f.id }}</td>
+                        <td>{{ f.fecha }}</td>
+                        <td>{{ f.cliente.nombre }} {{ f.cliente.apellido }}</td>
+                        <td>{{ f.producto.nombre }}</td>
+                        <td>{{ f.cantidad }}</td>
+                        <td>${{ f.precio }}</td>
+                        <td><strong>${{ f.total }}</strong></td>
+                        <td class="text-center">
+                            <a href="/Factura/editar/{{ f.id }}" class="btn btn-warning btn-sm me-2">
+                                <i class="fa-solid fa-pen-to-square"></i> Editar
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminar('{{ f.id }}')">
+                                <i class="fa-solid fa-trash"></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">No hay facturas registradas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/Factura/eliminar" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="idfac" id="delete_id">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Está seguro de que desea eliminar la factura ID <strong id="delete_info"></strong>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmarEliminar(id) {
+    document.getElementById('delete_id').value = id;
+    document.getElementById('delete_info').innerText = id;
+    var myModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    myModal.show();
+}
+</script>
+
+{% include 'Inc/footer.html' %}

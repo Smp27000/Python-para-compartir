@@ -1,0 +1,83 @@
+{% load static %}
+{% include 'Inc/header.html' %}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center my-4">
+        <h1>Listado de Clientes</h1>
+        <a href="/Cliente/insertar" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Nuevo Cliente</a>
+    </div>
+
+    <div class="card p-3">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Celular</th>
+                        <th>Email</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in mostrar %}
+                    <tr>
+                        <td>{{ c.idcliente }}</td>
+                        <td>{{ c.nombre }}</td>
+                        <td>{{ c.apellido }}</td>
+                        <td>{{ c.celular }}</td>
+                        <td>{{ c.email }}</td>
+                        <td class="text-center">
+                            <a href="/Cliente/editar/{{ c.idcliente }}" class="btn btn-warning btn-sm me-2">
+                                <i class="fa-solid fa-pen-to-square"></i> Editar
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminar('{{ c.idcliente }}', '{{ c.nombre }} {{ c.apellido }}')">
+                                <i class="fa-solid fa-trash"></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No hay clientes registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/Cliente/eliminar" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="idcli" id="delete_id">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Está seguro de que desea eliminar al cliente <strong id="delete_name"></strong>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmarEliminar(id, name) {
+    document.getElementById('delete_id').value = id;
+    document.getElementById('delete_name').innerText = name;
+    var myModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    myModal.show();
+}
+</script>
+
+{% include 'Inc/footer.html' %}

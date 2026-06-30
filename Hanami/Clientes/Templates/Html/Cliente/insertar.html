@@ -1,0 +1,72 @@
+{% load static %}
+{% include 'Inc/header.html' %}
+
+<div class="container">
+    <h1 class="text-center my-4">Formulario Insertar Clientes</h1>
+    <div class="card p-4 col-md-8 mx-auto">
+        <form action="" method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="nombre" placeholder="Nombre"
+                               name="nombre" value="{{ nombre|default:'' }}" required>
+                        <label for="nombre">Nombre:</label>
+                        <div class="invalid-feedback">El nombre es obligatorio.</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="apellido" placeholder="Apellido"
+                               name="apellido" value="{{ apellido|default:'' }}" required>
+                        <label for="apellido">Apellido:</label>
+                        <div class="invalid-feedback">El apellido es obligatorio.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="celular" placeholder="Celular"
+                               name="celular" value="{{ celular|default:'' }}">
+                        <label for="celular">Celular:</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="email" placeholder="Email"
+                               name="email" value="{{ email|default:'' }}">
+                        <label for="email">Email:</label>
+                    </div>
+                </div>
+            </div>
+
+            {% if mensa %}
+                <h5 class="text-danger text-center my-3">{{ mensa }}</h5>
+            {% endif %}
+
+            <div class="col-12 text-center mt-3">
+                <button type="submit" class="btn btn-primary px-5 py-2">Registrar Cliente</button>
+                <a href="/Cliente/mostrar" class="btn btn-secondary px-5 py-2 ms-2">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(() => {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
+
+{% include 'Inc/footer.html' %}

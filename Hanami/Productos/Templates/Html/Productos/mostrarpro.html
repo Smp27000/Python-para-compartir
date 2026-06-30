@@ -1,0 +1,164 @@
+{% load static %}
+{% include 'Inc/header.html' %}
+<div class="container">
+    <h1 class="my-4 text-center">Listado de Productos</h1>
+    <div class="d-flex justify-content-end mb-4">
+        <a href="/Producto/insertar" class="btn btn-success"><i class="fa fa-plus me-2"></i>Registrar</a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for t in mostrar %}
+        <div class="col">
+            <div class="card h-100">
+                {% if t.foto %}
+                    <img src="{% static 'Img/' %}{{t.foto}}" class="card-img-top" alt="{{t.nombre}}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-secondary text-white text-center py-5" style="height: 200px;">Sin Foto</div>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h3 class="card-title">{{t.nombre}}</h3>
+                    <p class="card-text text-muted">{{t.descripcion}}</p>
+                    <ul class="list-unstyled mt-auto">
+                        <li><strong>Precio:</strong> ${{t.precio}}</li>
+                        <li><strong>Cantidad:</strong> {{t.cantidad}}</li>
+                        <li><strong>Fecha:</strong> {{t.fecha}}</li>
+                    </ul>
+                    <div class="d-flex justify-content-center gap-3 mt-3 border-top pt-3">
+                        <!-- Editar -->
+                        <a href="/Producto/editar/{{ t.id }}" class="text-info" title="Editar">
+                            <i class="fa fa-pencil fa-2x"></i>
+                        </a>
+                        <!-- Detalle API modal -->
+                        <a href="#" onclick="Consuapi('{{t.id}}')" class="text-success" title="Detalle">
+                            <i class="fa fa-info-circle fa-2x"></i>
+                        </a>
+                        <!-- Borrar -->
+                        <a href="#" onclick="borrar('{{t.id}}')" class="text-danger" title="Borrar">
+                            <i class="fa fa-trash fa-2x"></i>
+                        </a>
+                        <form action="/Producto/eliminar" method="POST" id="formu{{t.id}}" style="display:none;">
+                            {% csrf_token %}
+                            <input type="hidden" name="idprover" value="{{t.id}}">
+                            <input type="hidden" name="foto" value="{{t.foto}}">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal Detalle -->
+<div class="modal fade modal-lg" id="modaproducto" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="titleproducto">Detalle del Producto</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="" width="50%" id="imgproducto" class="img-fluid rounded mb-3">
+                <div id="descri" class="lead mb-2"></div>
+                <p id="cantidad" class="mb-1"></p>
+                <p id="precio" class="mb-1"></p>
+                <p id="fecha" class="mb-1"></p>
+                <p id="nombreprove" class="mb-1 fw-bold"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="Imprimirpdf()"><i class="fa-solid fa-file-pdf me-2"></i>Imprimir PDF</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jsPDF via CDN as fallback/direct usage if static is missing, and static load -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="{% static 'Js/jspdf.umd.min.js' %}" onerror="console.log('Using fallback jsPDF CDN')"></script>
+
+<script>
+function borrar(id) {
+    Swal.fire({
+        title: "¿Está seguro que desea borrar este producto?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, borrar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('formu' + id).submit();
+        }
+    });
+}
+
+function Consuapi(idpro) {
+    const tokenpro = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch('/Producto/api', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': tokenpro
+        },
+        body: JSON.stringify({ idpro: idpro })
+    })
+    .then(Response => Response.json())
+    .then(data => {
+        if (data.length !== 0) {
+            document.getElementById('titleproducto').innerHTML = data[0].fields.nombre;
+            document.getElementById('imgproducto').src = "{% static 'Img/' %}" + data[0].fields.foto;
+            document.getElementById('descri').innerHTML = "<b>Descripción: </b>" + data[0].fields.descripcion;
+            document.getElementById('cantidad').innerHTML = "<b>Cantidad: </b>" + data[0].fields.cantidad;
+            document.getElementById('precio').innerHTML = "<b>Precio: </b>$" + data[0].fields.precio;
+            document.getElementById('fecha').innerHTML = "<b>Fecha: </b>" + data[0].fields.fecha;
+            document.getElementById('nombreprove').innerHTML = "<b>Proveedor: </b>" + data[0].fields.nombreprover;
+            
+            var myModal = new bootstrap.Modal(document.getElementById('modaproducto'));
+            myModal.show();
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "No se encontró el producto!"
+            });
+        }
+    })
+    .catch((error) => {
+        console.error("Hubo error:", error);
+    });
+}
+
+function Imprimirpdf() {
+    let nompro = document.getElementById('titleproducto').innerHTML;
+    let desc = document.getElementById('descri').innerText;
+    let cant = document.getElementById('cantidad').innerText;
+    let prec = document.getElementById('precio').innerText;
+    let fech = document.getElementById('fecha').innerText;
+    let prov = document.getElementById('nombreprove').innerText;
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text("Hanami - Detalle de Producto", 20, 20);
+    
+    doc.line(20, 25, 190, 25);
+    
+    doc.setFontSize(16);
+    doc.text("Producto: " + nompro, 20, 40);
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.text(desc, 20, 50);
+    doc.text(cant, 20, 60);
+    doc.text(prec, 20, 70);
+    doc.text(fech, 20, 80);
+    doc.text(prov, 20, 90);
+    
+    doc.save("detalleproducto.pdf");
+}
+</script>
+{% include 'Inc/footer.html' %}
